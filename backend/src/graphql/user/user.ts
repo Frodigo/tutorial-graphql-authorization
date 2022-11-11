@@ -3,6 +3,7 @@ import * as bcrypt from "bcryptjs";
 import * as jwt from "jsonwebtoken";
 import {Secret} from "jsonwebtoken";
 import {isUserLoggedIn} from "../../utils/auth";
+import {NexusGenObjects} from "../../../nexus-typegen";
 require('dotenv').config()
 const APP_SECRET = process.env.APP_SECRET
 
@@ -20,14 +21,21 @@ export const User = objectType({
 export const UserQuery = extendType({
     type: "Query",
     definition(t) {
-        t.nonNull.list.nonNull.field("users", {
-            type: "User",
-            resolve(parent, args, context, info) {
+        t.nonNull.field('me', {
+            type: 'User',
+            resolve(parent, args, context) {
                 isUserLoggedIn(context);
 
-                return context.prisma.user.findMany()
-            },
-        });
+                const { userId } = context;
+
+                return context.prisma.user.findUnique({
+                    where: {
+                        id: userId
+                    }
+                }) as unknown as NexusGenObjects['User']
+
+            }
+        })
     },
 });
 

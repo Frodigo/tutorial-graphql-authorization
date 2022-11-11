@@ -63,7 +63,7 @@ export interface NexusGenFieldTypes {
     registerUser: NexusGenRootTypes['AuthPayload']; // AuthPayload!
   }
   Query: { // field return type
-    users: NexusGenRootTypes['User'][]; // [User!]!
+    me: NexusGenRootTypes['User']; // User!
   }
   User: { // field return type
     email: string; // String!
@@ -84,7 +84,7 @@ export interface NexusGenFieldTypeNames {
     registerUser: 'AuthPayload'
   }
   Query: { // field return type name
-    users: 'User'
+    me: 'User'
   }
   User: { // field return type name
     email: 'String'
