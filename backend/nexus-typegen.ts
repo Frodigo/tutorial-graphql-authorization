@@ -39,7 +39,6 @@ export interface NexusGenObjects {
     firstName: string; // String!
     id: number; // Int!
     lastName: string; // String!
-    password: string; // String!
   }
 }
 
@@ -70,7 +69,6 @@ export interface NexusGenFieldTypes {
     firstName: string; // String!
     id: number; // Int!
     lastName: string; // String!
-    password: string; // String!
   }
 }
 
@@ -91,7 +89,6 @@ export interface NexusGenFieldTypeNames {
     firstName: 'String'
     id: 'Int'
     lastName: 'String'
-    password: 'String'
   }
 }
 

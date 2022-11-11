@@ -1,4 +1,5 @@
 import {extendType, nonNull, objectType, stringArg} from "nexus";
+import {AuthenticationError} from "apollo-server";
 import * as bcrypt from "bcryptjs";
 import * as jwt from "jsonwebtoken";
 import {Secret} from "jsonwebtoken";
@@ -14,7 +15,6 @@ export const User = objectType({
         t.nonNull.string("firstName");
         t.nonNull.string("lastName");
         t.nonNull.string("email");
-        t.nonNull.string("password");
     },
 });
 
@@ -54,7 +54,7 @@ export const UserMutation = extendType({
                 });
 
                 if (!user) {
-                    throw new Error("No such user found");
+                    throw new AuthenticationError("No such user found");
                 }
 
                 const valid = await bcrypt.compare(
@@ -62,10 +62,12 @@ export const UserMutation = extendType({
                     user.password,
                 );
                 if (!valid) {
-                    throw new Error("Invalid password");
+                    throw new AuthenticationError("Invalid password");
                 }
 
-                const token = jwt.sign({ userId: user.id }, APP_SECRET as Secret);
+                const token: string = jwt.sign({ userId: user.id }, APP_SECRET as Secret, {
+                    expiresIn: '1h'
+                });
 
                 return {
                     token,

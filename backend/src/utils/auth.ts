@@ -1,6 +1,8 @@
 import * as jwt from "jsonwebtoken";
 import {Secret} from "jsonwebtoken";
 import {Context} from "../context";
+import {ForbiddenError} from "apollo-server";
+
 require('dotenv').config()
 const APP_SECRET = process.env.APP_SECRET
 
@@ -21,6 +23,6 @@ export function isUserLoggedIn(context: Context): void | never {
     const { userId } = context;
 
     if (!userId) {
-        throw new Error("Cannot view users without logging in.");
+        throw new ForbiddenError("Cannot view users without logging in.");
     }
 }
