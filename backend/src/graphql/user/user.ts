@@ -4,7 +4,6 @@ import * as jwt from "jsonwebtoken";
 import {Secret} from "jsonwebtoken";
 require('dotenv').config()
 const APP_SECRET = process.env.APP_SECRET
-console.log(APP_SECRET)
 
 export const User = objectType({
     name: "User",
@@ -20,9 +19,15 @@ export const User = objectType({
 export const UserQuery = extendType({
     type: "Query",
     definition(t) {
-        t.nonNull.list.nonNull.field("users", {   // 3
+        t.nonNull.list.nonNull.field("users", {
             type: "User",
-            resolve(parent, args, context, info) {    // 4
+            resolve(parent, args, context, info) {
+                const { userId } = context;
+
+                if (!userId) {
+                    throw new Error("Cannot view users without logging in.");
+                }
+
                 return context.prisma.user.findMany()
             },
         });
