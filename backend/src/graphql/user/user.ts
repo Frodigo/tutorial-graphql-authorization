@@ -1,4 +1,4 @@
-import { extendType, objectType } from "nexus";
+import { extendType, objectType, nonNull, stringArg } from "nexus";
 import { NexusGenObjects } from "../../../nexus-typegen";
 
 export const User = objectType({
@@ -36,6 +36,38 @@ export const UserQuery = extendType({
             type: "User",
             resolve(parent, args, context, info) {    // 4
                 return users;
+            },
+        });
+    },
+});
+
+export const LinkMutation = extendType({
+    type: "Mutation",
+    definition(t) {
+        t.nonNull.field("registerUser", {
+            type: "User",
+            args: {
+                firstName: nonNull(stringArg()),
+                lastName: nonNull(stringArg()),
+                email: nonNull(stringArg()),
+                password: nonNull(stringArg()),
+            },
+
+            resolve(parent, args, context) {
+                const { firstName, lastName, email, password } = args;
+
+                let idCount = users.length + 1;
+                const user = {
+                    id: idCount,
+                    firstName,
+                    lastName,
+                    email,
+                    password
+                };
+
+                users.push(user);
+
+                return user;
             },
         });
     },
