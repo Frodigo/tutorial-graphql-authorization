@@ -1,5 +1,10 @@
 import {extendType, nonNull, objectType, stringArg} from "nexus";
-import {NexusGenObjects} from "../../../nexus-typegen";
+import * as bcrypt from "bcryptjs";
+import * as jwt from "jsonwebtoken";
+import {Secret} from "jsonwebtoken";
+require('dotenv').config()
+const APP_SECRET = process.env.APP_SECRET
+console.log(APP_SECRET)
 
 export const User = objectType({
     name: "User",
@@ -24,11 +29,43 @@ export const UserQuery = extendType({
     },
 });
 
-export const LinkMutation = extendType({
+export const UserMutation = extendType({
     type: "Mutation",
     definition(t) {
+        t.nonNull.field("loginUser", {
+            type: "AuthPayload",
+            args: {
+                email: nonNull(stringArg()),
+                password: nonNull(stringArg()),
+            },
+            async resolve(parent, args, context) {
+                const user = await context.prisma.user.findUnique({
+                    where: { email: args.email },
+                });
+
+                if (!user) {
+                    throw new Error("No such user found");
+                }
+
+                const valid = await bcrypt.compare(
+                    args.password,
+                    user.password,
+                );
+                if (!valid) {
+                    throw new Error("Invalid password");
+                }
+
+                const token = jwt.sign({ userId: user.id }, APP_SECRET as Secret);
+
+                return {
+                    token,
+                    user,
+                };
+            },
+        });
+
         t.nonNull.field("registerUser", {
-            type: "User",
+            type: "AuthPayload",
             args: {
                 firstName: nonNull(stringArg()),
                 lastName: nonNull(stringArg()),
@@ -36,17 +73,26 @@ export const LinkMutation = extendType({
                 password: nonNull(stringArg()),
             },
 
-            resolve(parent, args, context) {
+            async resolve(parent, args, context) {
                 const { firstName, lastName, email, password } = args;
 
-                return context.prisma.user.create({
+                const hashedPassword = await bcrypt.hash(password, 10)
+
+                const user = await context.prisma.user.create({
                     data: {
                         firstName,
                         lastName,
                         email,
-                        password
+                        password: hashedPassword
                     },
                 });
+
+                const token = jwt.sign({ userId: user.id }, APP_SECRET as Secret);
+
+                return {
+                    token,
+                    user,
+                };
             },
         });
     },
