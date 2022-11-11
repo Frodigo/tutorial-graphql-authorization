@@ -2,6 +2,7 @@ import {extendType, nonNull, objectType, stringArg} from "nexus";
 import * as bcrypt from "bcryptjs";
 import * as jwt from "jsonwebtoken";
 import {Secret} from "jsonwebtoken";
+import {isUserLoggedIn} from "../../utils/auth";
 require('dotenv').config()
 const APP_SECRET = process.env.APP_SECRET
 
@@ -22,11 +23,7 @@ export const UserQuery = extendType({
         t.nonNull.list.nonNull.field("users", {
             type: "User",
             resolve(parent, args, context, info) {
-                const { userId } = context;
-
-                if (!userId) {
-                    throw new Error("Cannot view users without logging in.");
-                }
+                isUserLoggedIn(context);
 
                 return context.prisma.user.findMany()
             },
