@@ -3,7 +3,7 @@ import {AuthenticationError} from "apollo-server";
 import * as bcrypt from "bcryptjs";
 import * as jwt from "jsonwebtoken";
 import {Secret} from "jsonwebtoken";
-import {isUserLoggedIn} from "../../utils/auth";
+import {isUserLoggedIn} from "../../guards";
 import {NexusGenObjects} from "../../../nexus-typegen";
 require('dotenv').config()
 const APP_SECRET = process.env.APP_SECRET
@@ -99,7 +99,9 @@ export const UserMutation = extendType({
                     },
                 });
 
-                const token = jwt.sign({ userId: user.id }, APP_SECRET as Secret);
+                const token = jwt.sign({ userId: user.id }, APP_SECRET as Secret, {
+                    expiresIn: '1h'
+                });
 
                 return {
                     token,
