@@ -41,7 +41,7 @@ export default function LoginForm() {
             {errors.register_lastName && <Form.Control.Feedback type="invalid" style={{display: 'block'}}>{errors.register_lastName.message}</Form.Control.Feedback>}
         </Form.Group>
 
-        <Form.Group className="mb-3" controlId="formBasicEmail">
+        <Form.Group className="mb-3" controlId="registerEmail">
             <Form.Label>Email address</Form.Label>
             <Controller
                 name="register_email"
@@ -67,7 +67,7 @@ export default function LoginForm() {
             </Form.Text>
         </Form.Group>
 
-        <Form.Group className="mb-3" controlId="formBasicPassword">
+        <Form.Group className="mb-3" controlId="registerPassword">
             <Form.Label>Password</Form.Label>
             <Controller
                 name="register_password"

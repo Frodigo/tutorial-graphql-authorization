@@ -1,10 +1,53 @@
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import { useForm, Controller } from "react-hook-form";
+import {gql, useMutation} from "@apollo/client";
+
+const LOGIN_USER_MUTATION = gql`
+mutation LoginUser($email: String!, $password: String!) {
+  loginUser(email: $email, password: $password) {
+    token
+    user {
+      email
+      firstName
+      lastName
+    }
+  }
+}
+`;
+
 
 export default function LoginForm() {
     const { control, handleSubmit, formState: { errors, isValid } } = useForm();
-    const onSubmit = data => console.log(data);
+    const [loginUser] = useMutation(LOGIN_USER_MUTATION, {
+        onCompleted: (data) => {
+            localStorage.setItem('token', data.loginUser.token)
+        },
+        update(cache, data) {
+            console.log(data.data.loginUser.user)
+            cache.writeQuery({
+                query: gql`
+                query getMe {
+                  me {
+                    email
+                    firstName
+                    lastName
+                  }
+                }`,
+                data: {
+                    me: {
+                        ...data.data.loginUser.user
+                    }
+                }
+            });
+        }
+    })
+    const onSubmit = data => loginUser({
+        variables: {
+            email: data.login_email,
+            password: data.login_password
+        }
+    })
 
     return <Form noValidate onSubmit={handleSubmit(onSubmit)} validated={isValid}>
         <Form.Group className="mb-3" controlId="formBasicEmail">

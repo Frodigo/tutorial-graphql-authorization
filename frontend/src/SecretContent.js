@@ -1,8 +1,20 @@
 import Card from 'react-bootstrap/Card';
 import ListGroup from 'react-bootstrap/ListGroup';
+import {useCallback} from "react";
+import {client} from './index'
 
 export default function SecretContent(props) {
     const { user } = props;
+
+    const logOut = useCallback(async () => {
+        await localStorage.removeItem('token');
+        client.cache.evict({
+            fieldName: 'me'
+        })
+        client.refetchQueries({
+            include: ['getMe']
+        })
+    }, [])
 
     return <div className="mt-3">
         <Card style={{ width: '18rem' }}>
@@ -15,7 +27,7 @@ export default function SecretContent(props) {
                 <ListGroup.Item><strong>Email: </strong>{user.email}</ListGroup.Item>
             </ListGroup>
             <Card.Body>
-                <Card.Link href="#">Log out</Card.Link>
+                <button type="button" onClick={logOut}>Log out</button>
             </Card.Body>
         </Card>
     </div>

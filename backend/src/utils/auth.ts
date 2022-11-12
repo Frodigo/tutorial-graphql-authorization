@@ -1,5 +1,6 @@
 import * as jwt from "jsonwebtoken";
 import {Secret} from "jsonwebtoken";
+import {AuthenticationError} from "apollo-server";
 
 require('dotenv').config()
 const APP_SECRET = process.env.APP_SECRET
@@ -14,5 +15,12 @@ export function decodeAuthHeader(authHeader: String): AuthTokenPayload {
     if (!token) {
         throw new Error("No token found");
     }
-    return jwt.verify(token, APP_SECRET as Secret) as unknown as AuthTokenPayload;
+    try {
+        return jwt.verify(token, APP_SECRET as Secret) as unknown as AuthTokenPayload;
+    } catch (e) {
+        return {
+            userId: 0
+        }
+    }
+
 }
