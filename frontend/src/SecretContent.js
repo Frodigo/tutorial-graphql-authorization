@@ -1,4 +1,5 @@
 import Card from 'react-bootstrap/Card';
+import Button from 'react-bootstrap/Button'
 import ListGroup from 'react-bootstrap/ListGroup';
 import {useCallback} from "react";
 import {client} from './index'
@@ -27,7 +28,7 @@ export default function SecretContent(props) {
                 <ListGroup.Item><strong>Email: </strong>{user.email}</ListGroup.Item>
             </ListGroup>
             <Card.Body>
-                <button type="button" onClick={logOut}>Log out</button>
+                <Button variant="primary" onClick={logOut}>Log out</Button>
             </Card.Body>
         </Card>
     </div>

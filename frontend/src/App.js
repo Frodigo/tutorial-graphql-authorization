@@ -6,7 +6,7 @@ import SecretContent from "./SecretContent";
 import {gql, useQuery} from "@apollo/client";
 import {useMemo} from "react";
 
-const ME_QUERY = gql`
+export const ME_QUERY = gql`
 query getMe {
   me {
     email
@@ -20,7 +20,6 @@ function App() {
   const { data, isLoading, error} = useQuery(ME_QUERY, {
       fetchPolicy: 'cache-and-network'
   });
-  console.log(data);
   const userData = useMemo(() => {
     return data?.me;
   }, [data]);

@@ -2,6 +2,7 @@ import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import { useForm, Controller } from "react-hook-form";
 import {gql, useMutation} from "@apollo/client";
+import { ME_QUERY } from "./App";
 
 const LOGIN_USER_MUTATION = gql`
 mutation LoginUser($email: String!, $password: String!) {
@@ -24,16 +25,8 @@ export default function LoginForm() {
             localStorage.setItem('token', data.loginUser.token)
         },
         update(cache, data) {
-            console.log(data.data.loginUser.user)
             cache.writeQuery({
-                query: gql`
-                query getMe {
-                  me {
-                    email
-                    firstName
-                    lastName
-                  }
-                }`,
+                query: ME_QUERY,
                 data: {
                     me: {
                         ...data.data.loginUser.user
@@ -50,6 +43,7 @@ export default function LoginForm() {
     })
 
     return <Form noValidate onSubmit={handleSubmit(onSubmit)} validated={isValid}>
+        <legend>User login</legend>
         <Form.Group className="mb-3" controlId="formBasicEmail">
             <Form.Label>Email address</Form.Label>
             <Controller

@@ -1,12 +1,50 @@
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import { useForm, Controller } from "react-hook-form";
+import {gql, useMutation} from "@apollo/client";
+import {ME_QUERY} from "./App";
+
+const REGISTER_USER_MUTATION = gql`
+mutation RegisterUser($firstName: String!, $lastName: String!, $email: String!, $password: String!) {
+  registerUser(firstName: $firstName, lastName: $lastName, email: $email, password: $password) {
+    token,
+    user {
+      firstName
+      lastName
+      email
+    }
+  }
+}
+`;
 
 export default function LoginForm() {
     const { control, handleSubmit, formState: { errors, isValid } } = useForm();
-    const onSubmit = data => console.log(data);
+    const [registerUser] = useMutation(REGISTER_USER_MUTATION, {
+        onCompleted: (data) => {
+            localStorage.setItem('token', data.registerUser.token)
+        },
+        update(cache, data) {
+            cache.writeQuery({
+                query: ME_QUERY,
+                data: {
+                    me: {
+                        ...data.data.registerUser.user
+                    }
+                }
+            });
+        }
+    })
+    const onSubmit = data => registerUser({
+        variables: {
+            email: data.register_email,
+            password: data.register_password,
+            firstName: data.register_firstName,
+            lastName: data.register_lastName,
+        }
+    })
 
     return <Form noValidate onSubmit={handleSubmit(onSubmit)} validated={isValid}>
+        <legend>User registration</legend>
         <Form.Group className="mb-3" controlId="formBasicFirstName">
             <Form.Label>First name</Form.Label>
             <Controller
